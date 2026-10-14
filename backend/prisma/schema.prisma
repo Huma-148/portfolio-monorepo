@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  VISITOR
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(VISITOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages     Message[]
+  activityLogs ActivityLog[]
+}
+
+model Message {
+  id        String        @id @default(uuid())
+  userId    String
+  subject   String        @db.VarChar(255)
+  content   String        @db.Text
+  status    MessageStatus @default(UNREAD)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies Reply[]
+
+  @@index([userId])
+  @@index([status, createdAt])
+}
+
+model Reply {
+  id        String   @id @default(uuid())
+  messageId String
+  adminId   String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+model ActivityLog {
+  id               String   @id @default(uuid())
+  userId           String?
+  action           String   @db.VarChar(100)
+  deviceType       String   @db.VarChar(20)
+  browser          String   @db.VarChar(50)
+  country          String   @db.VarChar(10)
+  targetElementId  String?
+  durationSeconds  Int?
+  createdAt        DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@index([country, createdAt])
+  @@index([deviceType])
+}
