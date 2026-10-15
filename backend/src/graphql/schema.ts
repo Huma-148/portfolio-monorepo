@@ -1,12 +1,7 @@
 /**
- * GraphQL schema placeholders — wired in a later phase.
- * Reserved for type definitions aligned with Prisma models and frontend contracts.
+ * Single import point for the GraphQL layer: the schema definition (SDL) and the
+ * resolver map. The GraphQL server (wired in a later phase) imports both from
+ * here, so it never depends on the internal file layout.
  */
-
-export const typeDefs: string = /* GraphQL */ `
-  type Query {
-    _health: String!
-  }
-`;
-
-export default typeDefs;
+export { typeDefs } from "./typeDefs";
+export { resolvers } from "./resolvers";
