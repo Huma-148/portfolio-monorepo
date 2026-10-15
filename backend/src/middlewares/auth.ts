@@ -7,19 +7,14 @@ import jwt, {
 import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { Role } from "@prisma/client";
-import { AuthContext, AuthenticatedContext, TokenPayload, UnauthenticatedContext } from "../types/infrastructure";
+import { AuthContext, AuthenticatedContext, TokenPayload } from "../types/infrastructure";
+import { UNAUTHENTICATED } from "../utils/constant";
 
 const JWT_ALGORITHM: Algorithm = "HS256";
 const JWT_ISSUER: string = "portfolio-backend";
 const JWT_AUDIENCE: string = "portfolio-clients";
 const VALID_ROLES: readonly Role[] = ["ADMIN", "VISITOR"];
 
-/** Clean fallback identity used whenever no valid token is present. */
-export const UNAUTHENTICATED: UnauthenticatedContext = Object.freeze({
-  isAuthenticated: false,
-  userId: null,
-  role: null,
-});
 
 // Type augmentation: makes `req.auth` available (and typed) on every Express
 // request. It is populated by the `attachAuth` middleware.
