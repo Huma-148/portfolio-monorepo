@@ -1,5 +1,7 @@
-/**
- * Middleware barrel — auth, security, and logging interceptors added in later phases.
- */
-
-export {};
+export { graphqlRateLimiter } from "./rateLimiter";
+export {
+  attachAuth,
+  signToken,
+  verifyToken,
+  UNAUTHENTICATED,
+} from "./auth";
