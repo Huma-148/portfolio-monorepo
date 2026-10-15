@@ -1,8 +1,20 @@
+import { ErrorResponse } from "../types/infrastructure";
+
+/**
+ * Application error carrying an HTTP status code. Throw it for expected
+ * failures (validation, not found, rate limit) so `toErrorResponse` can turn it
+ * into a clean client response. `isOperational` marks errors we anticipated,
+ * as opposed to programmer bugs.
+ */
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
 
-  constructor(message: string, statusCode = 500, isOperational = true) {
+  constructor(
+    message: string,
+    statusCode: number = 500,
+    isOperational: boolean = true,
+  ) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = isOperational;
@@ -11,14 +23,11 @@ export class AppError extends Error {
   }
 }
 
-export type ErrorResponse = {
-  success: false;
-  error: {
-    message: string;
-    statusCode: number;
-  };
-};
 
+/**
+ * Converts any thrown value into the standard JSON error body sent to clients.
+ * `AppError` keeps its message and status code; anything else becomes a 500.
+ */
 export function toErrorResponse(error: unknown): ErrorResponse {
   if (error instanceof AppError) {
     return {
@@ -30,7 +39,7 @@ export function toErrorResponse(error: unknown): ErrorResponse {
     };
   }
 
-  const message =
+  const message: string =
     error instanceof Error ? error.message : "Internal server error";
 
   return {
